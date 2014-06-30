@@ -1,0 +1,54 @@
+#!/usr/bin/env node
+
+/**
+ * import(s)
+ */
+
+var debug = require('debug')('socket.io-zeromq-server');
+var fs = require('fs');
+var format = require('util').format;
+var msgpack = require('msgpack-js');
+var zmq = require('zmq');
+var program = require('commander');
+
+
+// parse argv
+
+program
+  .version(JSON.parse(fs.readFileSync(__dirname + '/../package.json', 'utf8')).version)
+  .option('--subaddress [address]', 'subscribe bind address')
+  .option('--subport [port]', 'subscriber bind port')
+  .option('--pubaddress [address]', 'publisher bind address')
+  .option('--pubport [port]', 'publisher bind port')
+  .parse(process.argv);
+
+var options = {
+  subscriber: {
+    address: program.subaddress || '127.0.0.1',
+    port: program.subport || 5555
+  },
+  publisher: {
+    address: program.pubaddress || '127.0.0.1',
+    port: program.pubport || 5556
+  }
+}
+debug('options : %j', options);
+
+
+var sub = zmq.socket('xsub');
+sub.bindSync(format('tcp://%s:%s', options.subscriber.address, options.subscriber.port));
+
+var pub = zmq.socket('xpub');
+pub.bindSync(format('tcp://%s:%s', options.publisher.address, options.publisher.port));
+
+pub.on('message', function (data) {
+  // The first byte is the subscribe (1) /unsubscribe flag (0)
+  var type = (data[0] === 0 ? 'unsubscribe' : 'subscribe');
+  var channel = data.slice(1).toString();
+  debug('subscribe type = %s, channel = %s, length = %s', type, channel, data.length);
+  sub.send(data);
+});
+
+sub.on('message', function (data) {
+  pub.send(data);
+});

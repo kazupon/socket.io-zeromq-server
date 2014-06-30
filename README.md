@@ -5,7 +5,7 @@
 [![Coverage Status](https://img.shields.io/coveralls/kazupon/socket.io-zeromq-server.svg)](https://coveralls.io/r/kazupon/socket.io-zeromq-server)
 [![Dependency Status](https://david-dm.org/kazupon/socket.io-zeromq-server.svg)](https://david-dm.org/kazupon/socket.io-zeromq-server)
 
-socket.io pub-sub server [zeromq](http://zeromq.or) implementation.
+socket.io pub-sub server [zeromq](http://zeromq.org) implementation.
 
 
 # Installing
@@ -19,12 +19,16 @@ zeromq version required >= 4.0.4
 
 # Usage
 
-TODO:
+```shell
+$ socket.io-zeromq-server
+```
 
 
 # Testing
 
-TODO:
+```shell
+$ make test
+```
 
 
 # License
